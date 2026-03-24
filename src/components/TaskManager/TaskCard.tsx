@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { useStore, Task } from "@/store/useStore";
-import { Check, Clock, Pin } from "lucide-react";
+import { Check, Clock, Pin, Trash2 } from "lucide-react";
 
 const PRIORITY_BADGE = {
   High:   { emoji: "🔴", bg: "#FF453A22", text: "#FF453A" },
@@ -10,7 +10,7 @@ const PRIORITY_BADGE = {
 };
 
 export function TaskCard({ task, onClick, onToggle }: { task: Task, onClick: () => void, onToggle?: (id: number) => void }) {
-  const { toggleTaskDone, categories, settings, updateTask } = useStore();
+  const { toggleTaskDone, deleteTask, categories, settings, updateTask } = useStore();
   
   const [offset, setOffset] = useState(0);
   const [swiped, setSwiped] = useState(false);
@@ -79,13 +79,25 @@ export function TaskCard({ task, onClick, onToggle }: { task: Task, onClick: () 
                 {task.title}
               </h3>
             </div>
-            <button 
-              onClick={(e) => { e.stopPropagation(); doToggle(); }}
-              className="w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
-              style={{ borderColor: task.done ? settings.accentColor : borderCol, backgroundColor: task.done ? settings.accentColor : 'transparent' }}
-            >
-              {task.done && <Check size={12} color="#000" strokeWidth={4} />}
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {task.done && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                  className="w-7 h-7 rounded-full flex items-center justify-center transition-all hover:bg-red-500/20"
+                  style={{ color: '#FF453A' }}
+                  title="Delete task"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
+              <button 
+                onClick={(e) => { e.stopPropagation(); doToggle(); }}
+                className="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                style={{ borderColor: task.done ? settings.accentColor : borderCol, backgroundColor: task.done ? settings.accentColor : 'transparent' }}
+              >
+                {task.done && <Check size={12} color="#000" strokeWidth={4} />}
+              </button>
+            </div>
           </div>
 
           {task.description && (

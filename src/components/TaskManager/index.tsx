@@ -123,10 +123,22 @@ export default function TaskManager() {
     });
   }, [tasks, filterCat, search]);
 
-  const topUrgent = tasks.filter(t => !t.done).sort((a, b) => {
-    const scores = { High: 0, Medium: 1, Low: 2 };
-    return scores[a.priority] - scores[b.priority];
-  })[0];
+  // Smart urgency: prioritize by priority + how close the due date is
+  const computeUrgency = useCallback((t: typeof tasks[0]) => {
+    const scores = { High: 0, Medium: 30, Low: 60 };
+    let score = scores[t.priority];
+    if (t.due) {
+      const daysUntil = Math.ceil((new Date(t.due).getTime() - new Date().getTime()) / 86400000);
+      score += daysUntil < 0 ? -100 + daysUntil * 2 : daysUntil * 2;
+    } else {
+      score += 50;
+    }
+    return score;
+  }, []);
+
+  const topUrgent = useMemo(() => {
+    return tasks.filter(t => !t.done).sort((a, b) => computeUrgency(a) - computeUrgency(b))[0] || null;
+  }, [tasks, computeUrgency]);
 
   const viewLabels = { list: "☰ List", kanban: "⬜ Kanban", calendar: "📅 Calendar" };
 
@@ -142,6 +154,7 @@ export default function TaskManager() {
   }
 
   const selectedCat = categories.find(c => c.id === form.categoryId);
+  const suggestedCat = topUrgent ? categories.find(c => c.id === topUrgent.categoryId) : null;
 
   return (
     <div className="min-h-screen font-sans pb-24 selection:bg-[#30D158]/30 max-w-[600px] mx-auto overflow-hidden shadow-2xl relative" style={{ backgroundColor: bgCol, color: textCol }}>
@@ -150,7 +163,7 @@ export default function TaskManager() {
       <Header onOpenSettings={() => setShowSettings(true)} />
 
       {/* Quick Action Bar */}
-      <div className="px-6 flex gap-3 mb-6">
+      <div className="px-6 flex gap-3 mb-4">
         <button onClick={() => setShowPomodoro(true)} className="flex-1 py-3 h-14 rounded-2xl font-bold flex items-center justify-center gap-2 border-2 transition hover:opacity-80" style={{ borderColor: borderCol, backgroundColor: bgColAlt }}>
           ⏱ Timer
         </button>
@@ -160,6 +173,29 @@ export default function TaskManager() {
           </button>
         )}
       </div>
+
+      {/* Smart Suggestion: "Up Next" */}
+      {topUrgent && (
+        <div 
+          onClick={() => setSelectedTask(topUrgent.id)}
+          className="mx-6 mb-4 p-4 rounded-2xl cursor-pointer flex items-center gap-4 transition hover:opacity-90"
+          style={{ backgroundColor: `${settings.accentColor}11`, border: `1px solid ${settings.accentColor}22` }}
+        >
+          <div className="text-2xl">💡</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-extrabold uppercase tracking-widest mb-0.5" style={{ color: settings.accentColor }}>Up Next</p>
+            <p className="font-bold text-sm truncate">{topUrgent.title}</p>
+            <div className="flex gap-2 mt-1">
+              {topUrgent.due && <span className="text-[10px] font-bold" style={{ color: textSec }}>📅 {topUrgent.due}</span>}
+              {suggestedCat && <span className="text-[10px] font-bold" style={{ color: suggestedCat.color }}>{suggestedCat.name}</span>}
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ 
+            backgroundColor: PRIORITY_COLORS[topUrgent.priority].bg, 
+            color: PRIORITY_COLORS[topUrgent.priority].text 
+          }}>{topUrgent.priority}</span>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-6 mb-4">

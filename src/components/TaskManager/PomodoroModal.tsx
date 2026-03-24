@@ -42,7 +42,7 @@ export function PomodoroModal({ onClose }: { onClose: () => void }) {
   const secStr = String(secs % 60).padStart(2, "0");
   const pct = (secs / DURATIONS[mode]) * 100;
   
-  const r = 90;
+  const r = 72;
   const circ = 2 * Math.PI * r;
 
   const bgCol = settings.darkMode ? "#1C1C1E" : "#FFFFFF";
@@ -75,11 +75,11 @@ export function PomodoroModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        <div className="relative w-64 h-64 mb-12 flex items-center justify-center">
-          <svg width="256" height="256" className="absolute inset-0 -rotate-90">
-            <circle cx="128" cy="128" r={r} fill="none" strokeWidth="12" style={{ stroke: bgColAlt }} />
+        <div className="relative w-48 h-48 mb-10 flex items-center justify-center">
+          <svg width="192" height="192" className="absolute inset-0 -rotate-90">
+            <circle cx="96" cy="96" r={r} fill="none" strokeWidth="10" style={{ stroke: bgColAlt }} />
             <circle 
-              cx="128" cy="128" r={r} fill="none" strokeWidth="12" strokeLinecap="round"
+              cx="96" cy="96" r={r} fill="none" strokeWidth="10" strokeLinecap="round"
               style={{ 
                 stroke: settings.accentColor, 
                 strokeDasharray: circ, 
@@ -89,10 +89,10 @@ export function PomodoroModal({ onClose }: { onClose: () => void }) {
             />
           </svg>
           <div className="flex flex-col items-center">
-            <span className="text-6xl font-black font-mono tracking-tighter" style={{ fontVariantNumeric: "tabular-nums" }}>
+            <span className="text-4xl font-black font-mono tracking-tighter" style={{ fontVariantNumeric: "tabular-nums" }}>
               {mins}:{secStr}
             </span>
-            <span className="text-sm font-bold uppercase tracking-widest mt-2" style={{ color: settings.accentColor }}>
+            <span className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: settings.accentColor }}>
               {mode === "work" ? "Stay focused" : "Relax"}
             </span>
           </div>
@@ -102,8 +102,8 @@ export function PomodoroModal({ onClose }: { onClose: () => void }) {
           <button onClick={() => { setSecs(DURATIONS[mode]); setRunning(false); }} className="w-14 h-14 rounded-full flex items-center justify-center border-2 hover:opacity-80 transition" style={{ borderColor: bgColAlt }}>
             <RotateCcw size={24} />
           </button>
-          <button onClick={() => setRunning(!running)} className="w-24 h-24 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" style={{ backgroundColor: settings.accentColor, color: "#000" }}>
-            {running ? <Pause size={40} fill="currentColor" /> : <Play size={40} fill="currentColor" className="ml-2" />}
+          <button onClick={() => setRunning(!running)} className="w-20 h-20 rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" style={{ backgroundColor: settings.accentColor, color: "#000" }}>
+            {running ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
           </button>
           <button onClick={() => switchMode(mode === "work" ? "break" : "work")} className="w-14 h-14 rounded-full flex items-center justify-center border-2 hover:opacity-80 transition" style={{ borderColor: bgColAlt }}>
             <FastForward size={24} fill="currentColor" />
