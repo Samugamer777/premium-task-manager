@@ -10,6 +10,8 @@ import { FocusMode } from "./FocusMode";
 import { CalendarView } from "./CalendarView";
 import { FireConfetti } from "./Confetti";
 import { KanbanView } from "./KanbanView";
+import { CategoryManager } from "./CategoryManager";
+import { NotificationsModal } from "./NotificationsModal";
 import { Search, Plus, X, ChevronDown } from "lucide-react";
 
 const PRIORITY_COLORS = {
@@ -51,6 +53,8 @@ export default function TaskManager() {
   const [showSettings, setShowSettings] = useState(false);
   const [showPomodoro, setShowPomodoro] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showCatMgr, setShowCatMgr] = useState(false);
+  const [showNotifs, setShowNotifs] = useState(false);
 
   const trialStart = settings.trialStart;
   const isExpired = trialStart && (new Date().getTime() - new Date(trialStart).getTime()) / 86400000 > 3;
@@ -160,7 +164,7 @@ export default function TaskManager() {
     <div className="min-h-screen font-sans pb-24 selection:bg-[#30D158]/30 max-w-[600px] mx-auto overflow-hidden shadow-2xl relative" style={{ backgroundColor: bgCol, color: textCol }}>
       {showConfetti && <FireConfetti onDone={() => setShowConfetti(false)} />}
       
-      <Header onOpenSettings={() => setShowSettings(true)} />
+      <Header onOpenSettings={() => setShowSettings(true)} onOpenNotifs={() => setShowNotifs(true)} />
 
       {/* Quick Action Bar */}
       <div className="px-6 flex gap-3 mb-4">
@@ -242,7 +246,7 @@ export default function TaskManager() {
         {(["list", "kanban", "calendar"] as const).map(v => (
           <button 
             key={v} onClick={() => setView(v)}
-            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition"
             style={{ 
               backgroundColor: view === v ? bgColAlt : "transparent", 
               color: view === v ? settings.accentColor : 'gray',
@@ -252,6 +256,13 @@ export default function TaskManager() {
             {viewLabels[v]}
           </button>
         ))}
+        <button 
+          onClick={() => setShowCatMgr(true)}
+          className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition ml-auto"
+          style={{ backgroundColor: bgColAlt, color: textCol }}
+        >
+          🗂 Categories
+        </button>
       </div>
 
       {/* Views */}
@@ -478,6 +489,8 @@ export default function TaskManager() {
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
       {showPomodoro && <PomodoroModal onClose={() => setShowPomodoro(false)} />}
       {focusTask && <FocusMode taskId={focusTask} onClose={() => setFocusTask(null)} />}
+      {showCatMgr && <CategoryManager onClose={() => setShowCatMgr(false)} />}
+      {showNotifs && <NotificationsModal onClose={() => setShowNotifs(false)} onOpenTask={(id) => { setShowNotifs(false); setSelectedTask(id); }} />}
     </div>
   );
 }
