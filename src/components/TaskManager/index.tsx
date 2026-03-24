@@ -12,7 +12,7 @@ import { FireConfetti } from "./Confetti";
 import { KanbanView } from "./KanbanView";
 import { CategoryManager } from "./CategoryManager";
 import { NotificationsModal } from "./NotificationsModal";
-import { Search, Plus, X, ChevronDown } from "lucide-react";
+import { Search, Plus, X, ChevronDown, Check } from "lucide-react";
 
 const PRIORITY_COLORS = {
   High:   { bg: "#FF453A22", text: "#FF453A", border: "#FF453A44" },
@@ -29,6 +29,7 @@ interface NewTaskForm {
   kanban: KanbanCol;
   recurrence: "none" | "daily" | "weekly" | "monthly";
   tags: string[];
+  subtasks: { id: number; title: string; done: boolean }[];
 }
 
 export default function TaskManager() {
@@ -42,10 +43,11 @@ export default function TaskManager() {
   const defaultForm: NewTaskForm = {
     title: "", description: "", priority: "Medium",
     categoryId: categories[0]?.id || 1, due: "", kanban: "To Do",
-    recurrence: "none", tags: []
+    recurrence: "none", tags: [], subtasks: []
   };
   const [form, setForm] = useState<NewTaskForm>(defaultForm);
   const [newTag, setNewTag] = useState("");
+  const [newSub, setNewSub] = useState("");
   
   const [selectedTask, setSelectedTask] = useState<number | null>(null);
   const [focusTask, setFocusTask] = useState<number | null>(null);
@@ -85,13 +87,14 @@ export default function TaskManager() {
       categoryId: form.categoryId,
       due: form.due,
       blockedBy: [],
-      subtasks: [],
+      subtasks: form.subtasks,
       kanban: form.kanban,
       tags: form.tags,
       recurrence: form.recurrence,
     });
     setForm({ ...defaultForm, categoryId: categories[0]?.id || 1 });
     setNewTag("");
+    setNewSub("");
     setShowForm(false);
     recordActivity();
   };
@@ -395,6 +398,59 @@ export default function TaskManager() {
                         <option value="weekly">Weekly</option>
                         <option value="monthly">Monthly</option>
                       </select>
+                    </div>
+                  </div>
+
+                  {/* Subtasks */}
+                  <div>
+                    <label className="text-[10px] font-extrabold uppercase tracking-widest mb-2 block" style={{ color: textSec }}>
+                      Subtasks {form.subtasks.length > 0 && `(${form.subtasks.filter(s=>s.done).length}/${form.subtasks.length})`}
+                    </label>
+                    {form.subtasks.length > 0 && (
+                      <div className="space-y-2 mb-3">
+                        {/* Progress bar */}
+                        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: borderCol }}>
+                          <div className="h-full transition-all" style={{ width: `${form.subtasks.length ? Math.round((form.subtasks.filter(s=>s.done).length / form.subtasks.length)*100) : 0}%`, backgroundColor: settings.accentColor }} />
+                        </div>
+                        {form.subtasks.map(sub => (
+                          <div key={sub.id} className="flex items-center gap-3 p-3 rounded-xl" style={{ backgroundColor: inputBg }}>
+                            <button
+                              onClick={() => setForm(f => ({...f, subtasks: f.subtasks.map(s => s.id === sub.id ? {...s, done: !s.done} : s)}))}
+                              className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all"
+                              style={{ borderColor: sub.done ? settings.accentColor : borderCol, backgroundColor: sub.done ? settings.accentColor : 'transparent' }}
+                            >
+                              {sub.done && <Check size={10} color="#000" strokeWidth={4} />}
+                            </button>
+                            <span className={`flex-1 text-sm font-medium ${sub.done ? 'line-through opacity-40' : ''}`}>{sub.title}</span>
+                            <button onClick={() => setForm(f => ({...f, subtasks: f.subtasks.filter(s => s.id !== sub.id)}))} className="opacity-40 hover:opacity-100 transition"><X size={14} /></button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <input
+                        value={newSub}
+                        onChange={e => setNewSub(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && newSub.trim()) {
+                            e.preventDefault();
+                            setForm(f => ({...f, subtasks: [...f.subtasks, { id: Date.now(), title: newSub.trim(), done: false }]}));
+                            setNewSub("");
+                          }
+                        }}
+                        placeholder="Add a subtask..."
+                        className="flex-1 p-3 rounded-xl outline-none text-sm"
+                        style={{ backgroundColor: inputBg, border: `1px solid ${borderCol}`, color: textCol }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (!newSub.trim()) return;
+                          setForm(f => ({...f, subtasks: [...f.subtasks, { id: Date.now(), title: newSub.trim(), done: false }]}));
+                          setNewSub("");
+                        }}
+                        className="px-4 rounded-xl font-bold text-sm text-black"
+                        style={{ backgroundColor: settings.accentColor }}
+                      >+</button>
                     </div>
                   </div>
 
