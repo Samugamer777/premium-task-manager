@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useStore, TaskPriority, KanbanCol } from "@/store/useStore";
 import { Header } from "./Header";
 import { TaskCard } from "./TaskCard";
@@ -12,6 +12,11 @@ import { FireConfetti } from "./Confetti";
 import { KanbanView } from "./KanbanView";
 import { CategoryManager } from "./CategoryManager";
 import { NotificationsModal } from "./NotificationsModal";
+import { StatsView } from "./StatsView";
+import { AchievementsModal } from "./AchievementsModal";
+import { NotesModal } from "./NotesModal";
+import { WeeklyAgenda } from "./WeeklyAgenda";
+import { i18n } from "@/lib/i18n";
 import { Search, Plus, X, ChevronDown, Check } from "lucide-react";
 
 const PRIORITY_COLORS = {
@@ -33,9 +38,10 @@ interface NewTaskForm {
 }
 
 export default function TaskManager() {
-  const { tasks, categories, settings, addTask, toggleTaskDone, recordActivity } = useStore();
+  const { tasks, categories, settings, addTask, toggleTaskDone, recordActivity, checkAchievements } = useStore();
+  const t = i18n[settings.language] || i18n.en;
   
-  const [view, setView] = useState<"list" | "kanban" | "calendar">("list");
+  const [view, setView] = useState<"list" | "kanban" | "calendar" | "stats" | "week">("list");
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<number | "All">("All");
   
@@ -57,6 +63,11 @@ export default function TaskManager() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showCatMgr, setShowCatMgr] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+
+  // Check achievements on task changes
+  useEffect(() => { checkAchievements(); }, [tasks.length, checkAchievements]);
 
   const trialStart = settings.trialStart;
   const isExpired = trialStart && (new Date().getTime() - new Date(trialStart).getTime()) / 86400000 > 3;
@@ -147,7 +158,7 @@ export default function TaskManager() {
     return tasks.filter(t => !t.done).sort((a, b) => computeUrgency(a) - computeUrgency(b))[0] || null;
   }, [tasks, computeUrgency]);
 
-  const viewLabels = { list: "☰ List", kanban: "⬜ Kanban", calendar: "📅 Calendar" };
+  const viewLabels: Record<string, string> = { list: `☰ ${t.list}`, kanban: `⬜ ${t.kanban}`, calendar: `📅 ${t.calendar}`, stats: `📊 ${t.stats}`, week: `🗓 ${t.week}` };
 
   if (isExpired && !settings.licenseKey) {
     return (
@@ -170,16 +181,24 @@ export default function TaskManager() {
       <Header onOpenSettings={() => setShowSettings(true)} onOpenNotifs={() => setShowNotifs(true)} />
 
       {/* Quick Action Bar */}
-      <div className="px-6 flex gap-3 mb-4">
-        <button onClick={() => setShowPomodoro(true)} className="flex-1 py-3 h-14 rounded-2xl font-bold flex items-center justify-center gap-2 border-2 transition hover:opacity-80" style={{ borderColor: borderCol, backgroundColor: bgColAlt }}>
-          ⏱ Timer
+      <div className="px-6 flex gap-2 mb-4">
+        <button onClick={() => setShowPomodoro(true)} className="flex-1 py-3 h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-1.5 border-2 transition hover:opacity-80" style={{ borderColor: borderCol, backgroundColor: bgColAlt }}>
+          ⏱ {t.timer}
         </button>
-        {topUrgent && (
-          <button onClick={() => setFocusTask(topUrgent.id)} className="flex-[2] px-6 py-3 h-14 rounded-2xl font-black flex items-center justify-center gap-2 hover:opacity-90 transition text-black" style={{ backgroundColor: settings.accentColor }}>
-            🎯 Focus Mode
-          </button>
-        )}
+        <button onClick={() => setShowNotes(true)} className="flex-1 py-3 h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-1.5 border-2 transition hover:opacity-80" style={{ borderColor: borderCol, backgroundColor: bgColAlt }}>
+          📝 {t.quickNotes.split(' ')[0]}
+        </button>
+        <button onClick={() => setShowAchievements(true)} className="flex-1 py-3 h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-1.5 border-2 transition hover:opacity-80" style={{ borderColor: borderCol, backgroundColor: bgColAlt }}>
+          🏆 {t.achievements.slice(0,6)}
+        </button>
       </div>
+      {topUrgent && (
+        <div className="px-6 mb-4">
+          <button onClick={() => setFocusTask(topUrgent.id)} className="w-full px-6 py-3 h-12 rounded-2xl font-black flex items-center justify-center gap-2 hover:opacity-90 transition text-black" style={{ backgroundColor: settings.accentColor }}>
+            🎯 {t.focusMode}
+          </button>
+        </div>
+      )}
 
       {/* Smart Suggestion: "Up Next" */}
       {topUrgent && (
@@ -245,11 +264,11 @@ export default function TaskManager() {
       </div>
 
       {/* View Tabs */}
-      <div className="px-6 mb-4 flex gap-2">
-        {(["list", "kanban", "calendar"] as const).map(v => (
+      <div className="px-6 mb-4 flex gap-1.5 overflow-x-auto no-scrollbar">
+        {(["list", "kanban", "calendar", "stats", "week"] as const).map(v => (
           <button 
             key={v} onClick={() => setView(v)}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition"
+            className="px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition shrink-0"
             style={{ 
               backgroundColor: view === v ? bgColAlt : "transparent", 
               color: view === v ? settings.accentColor : 'gray',
@@ -261,10 +280,10 @@ export default function TaskManager() {
         ))}
         <button 
           onClick={() => setShowCatMgr(true)}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition ml-auto"
+          className="px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition shrink-0 ml-auto"
           style={{ backgroundColor: bgColAlt, color: textCol }}
         >
-          🗂 Categories
+          🗂 {t.categories}
         </button>
       </div>
 
@@ -277,7 +296,7 @@ export default function TaskManager() {
             ))}
             {sortedTasks.length === 0 && (
               <div className="py-12 text-center text-gray-500 font-medium">
-                {search ? "No tasks found." : "No tasks here yet 🎉"}
+                {search ? t.noTasksFound : t.noTasksHere}
               </div>
             )}
             
@@ -527,6 +546,8 @@ export default function TaskManager() {
         
         {view === "kanban" && <KanbanView onOpenTask={setSelectedTask} />}
         {view === "calendar" && <CalendarView onOpenTask={setSelectedTask} />}
+        {view === "stats" && <StatsView />}
+        {view === "week" && <WeeklyAgenda onOpenTask={setSelectedTask} />}
       </div>
 
       {/* Floating Add Button for non-list views */}
@@ -547,6 +568,8 @@ export default function TaskManager() {
       {focusTask && <FocusMode taskId={focusTask} onClose={() => setFocusTask(null)} />}
       {showCatMgr && <CategoryManager onClose={() => setShowCatMgr(false)} />}
       {showNotifs && <NotificationsModal onClose={() => setShowNotifs(false)} onOpenTask={(id) => { setShowNotifs(false); setSelectedTask(id); }} />}
+      {showAchievements && <AchievementsModal onClose={() => setShowAchievements(false)} />}
+      {showNotes && <NotesModal onClose={() => setShowNotes(false)} />}
     </div>
   );
 }

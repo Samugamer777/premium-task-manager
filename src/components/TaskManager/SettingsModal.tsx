@@ -110,6 +110,22 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
+          {/* Language & Weekly Goal */}
+          <div>
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 block">Language / Idioma</label>
+            <div className="flex gap-3 mb-4">
+              <button onClick={() => updateSettings({ language: 'en' })} className="flex-1 p-3 rounded-xl flex items-center justify-center gap-2 border-2 transition font-bold text-sm" style={{ borderColor: settings.language === 'en' ? settings.accentColor : borderCol, background: settings.language === 'en' ? `${settings.accentColor}22` : bgColAlt, color: settings.language === 'en' ? settings.accentColor : textCol }}>
+                🇺🇸 English
+              </button>
+              <button onClick={() => updateSettings({ language: 'es' })} className="flex-1 p-3 rounded-xl flex items-center justify-center gap-2 border-2 transition font-bold text-sm" style={{ borderColor: settings.language === 'es' ? settings.accentColor : borderCol, background: settings.language === 'es' ? `${settings.accentColor}22` : bgColAlt, color: settings.language === 'es' ? settings.accentColor : textCol }}>
+                🇪🇸 Español
+              </button>
+            </div>
+
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 block">Weekly Goal (tasks per week)</label>
+            <input type="number" min={1} max={100} value={settings.weeklyGoal ?? 10} onChange={e => updateSettings({ weeklyGoal: Number(e.target.value) || 10 })} className="w-full p-4 rounded-xl outline-none font-bold text-lg" style={inputStyle} />
+          </div>
+
           {/* Backup Section */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 block">Data Sync & Backup</label>
