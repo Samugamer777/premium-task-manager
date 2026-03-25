@@ -1,6 +1,6 @@
 {
-  "name": "FocusTask",
-  "short_name": "FocusTask",
+  "name": "TheFocusTask",
+  "short_name": "TheFocusTask",
   "description": "Premium task manager with Kanban, Pomodoro, Focus Mode, and more.",
   "start_url": "/app",
   "display": "standalone",

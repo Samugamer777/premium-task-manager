@@ -16,11 +16,11 @@ const FEATURES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "María G.", role: "University Student", avatar: "🎓", text: "FocusTask changed how I study. The Pomodoro timer + subtasks combo is incredible for exam prep. Best $1 I've ever spent!" },
-  { name: "Carlos R.", role: "Freelance Designer", avatar: "🎨", text: "I tried Notion, Todoist, and TickTick. FocusTask is the only one that doesn't overwhelm me. Clean, fast, beautiful." },
+  { name: "María G.", role: "University Student", avatar: "🎓", text: "TheFocusTask changed how I study. The Pomodoro timer + subtasks combo is incredible for exam prep!" },
+  { name: "Carlos R.", role: "Freelance Designer", avatar: "🎨", text: "I tried Notion, Todoist, and TickTick. TheFocusTask is the only one that doesn't overwhelm me. Clean, fast, beautiful." },
   { name: "Ana P.", role: "Project Manager", avatar: "💼", text: "The Kanban board and smart suggestions keep my team aligned. The dark mode is gorgeous. Highly recommended!" },
   { name: "Diego M.", role: "Software Developer", avatar: "💻", text: "Finally a task app that respects my workflow. Recurring tasks + focus mode = unstoppable productivity." },
-  { name: "Laura S.", role: "Content Creator", avatar: "📱", text: "Love the confetti when I complete tasks! It's the little things that keep me motivated. And for only $1/month? Steal!" },
+  { name: "Laura S.", role: "Content Creator", avatar: "📱", text: "Love the confetti when I complete tasks! It's the little things that keep me motivated. Totally worth it!" },
   { name: "Andrés T.", role: "Entrepreneur", avatar: "🚀", text: "I manage 3 businesses from this app. Categories + tags make it possible. The calendar view is a game changer." },
 ];
 
@@ -43,9 +43,9 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-[#30D158] selection:text-black">
       {/* Navigation */}
       <nav className="flex items-center justify-between p-6 max-w-5xl mx-auto">
-        <div className="text-xl font-bold tracking-tight">Focus<span className="text-[#30D158]">Task</span></div>
+        <div className="text-xl font-bold tracking-tight">The<span className="text-[#30D158]">Focus</span>Task</div>
         <div className="space-x-4">
-          <Link href="/login" className="text-sm text-gray-400 hover:text-white transition">License Login</Link>
+          <Link href="/login" className="text-sm text-gray-400 hover:text-white transition">Log In</Link>
           <Link href="#pricing" className="text-sm bg-white text-black px-4 py-2 rounded-full font-medium hover:bg-gray-200 transition">Get Started</Link>
         </div>
       </nav>
@@ -177,34 +177,56 @@ export default function LandingPage() {
 
       {/* ─── PRICING ─── */}
       <section id="pricing" className="py-32 relative overflow-hidden bg-[#0a0a0c] border-t border-gray-900">
-        <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
+        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <p className="text-xs font-extrabold uppercase tracking-widest text-[#30D158] mb-3">Simple Pricing</p>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">One plan. No surprises.</h2>
-          <p className="text-xl text-gray-400 mb-12">Start free for 3 days. Then just $1/month.</p>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">Choose your plan.</h2>
+          <p className="text-xl text-gray-400 mb-12">Start free for 3 days. No credit card required.</p>
           
-          <div className="bg-[#1C1C1E] border border-gray-800 rounded-3xl p-10 max-w-md mx-auto shadow-2xl">
-            <h3 className="text-2xl font-bold mb-4">Pro Plan</h3>
-            <div className="text-6xl font-extrabold mb-6 tracking-tight">
-              $1<span className="text-2xl text-gray-500 font-normal">/mo</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            {/* Monthly */}
+            <div className="bg-[#1C1C1E] border border-gray-800 rounded-3xl p-8 shadow-2xl">
+              <h3 className="text-lg font-bold mb-2 text-gray-400">Monthly</h3>
+              <div className="text-5xl font-extrabold mb-1 tracking-tight">
+                $2.99<span className="text-xl text-gray-500 font-normal">/mo</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">Billed monthly</p>
+              <ul className="text-left space-y-2.5 mb-8 text-gray-300 text-sm">
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> All features included</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Kanban, Calendar & Focus Mode</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Pomodoro & smart suggestions</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Cancel anytime</li>
+              </ul>
+              <Link href="/app" className="block w-full py-3.5 bg-gray-800 text-white font-bold rounded-xl hover:bg-gray-700 transition text-center">
+                Start Free Trial
+              </Link>
             </div>
-            <ul className="text-left space-y-3 mb-8 text-gray-300">
-              <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Unlimited tasks & categories</li>
-              <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Kanban, Calendar & Focus Mode</li>
-              <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Pomodoro timer & smart suggestions</li>
-              <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Dark & Light themes with custom colors</li>
-              <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Backup & cross-device sync</li>
-            </ul>
-            <Link href="/app" className="block w-full py-4 bg-[#30D158] text-black font-bold rounded-xl hover:bg-[#28b049] transition text-lg text-center">
-              Start Free Trial
-            </Link>
-            <p className="text-sm text-gray-500 mt-4">3 days free · Cancel anytime</p>
+
+            {/* Annual — Best Value */}
+            <div className="bg-[#1C1C1E] rounded-3xl p-8 shadow-2xl relative" style={{ border: '2px solid #30D158' }}>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#30D158] text-black text-xs font-extrabold uppercase">Best Value</div>
+              <h3 className="text-lg font-bold mb-2 text-[#30D158]">Annual</h3>
+              <div className="text-5xl font-extrabold mb-1 tracking-tight">
+                $19.99<span className="text-xl text-gray-500 font-normal">/yr</span>
+              </div>
+              <p className="text-sm text-gray-500 mb-6">~$1.66/mo · <span className="text-[#30D158] font-bold">Save 44%</span></p>
+              <ul className="text-left space-y-2.5 mb-8 text-gray-300 text-sm">
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Everything in Monthly</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> 44% cheaper than monthly</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Priority support</li>
+                <li className="flex items-center gap-3"><span className="text-[#30D158]">✓</span> Cancel anytime</li>
+              </ul>
+              <Link href="/app" className="block w-full py-3.5 bg-[#30D158] text-black font-bold rounded-xl hover:bg-[#28b049] transition text-center text-lg shadow-[0_0_20px_rgba(48,209,88,0.2)]">
+                Start Free Trial
+              </Link>
+            </div>
           </div>
+          <p className="text-sm text-gray-500 mt-6">3 days free · Cancel anytime · No credit card for trial</p>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-gray-900 py-8">
-        <p className="text-center text-sm text-gray-600">© 2026 FocusTask. Built with ❤️</p>
+        <p className="text-center text-sm text-gray-600">© 2026 TheFocusTask. Built with ❤️</p>
       </footer>
     </div>
   );

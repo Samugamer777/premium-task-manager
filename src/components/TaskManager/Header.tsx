@@ -1,9 +1,11 @@
 "use client";
 import { useStore } from "@/store/useStore";
+import { i18n } from "@/lib/i18n";
 import { Bell, User, Settings as SettingsIcon } from "lucide-react";
 
 export function Header({ onOpenSettings, onOpenNotifs }: { onOpenSettings: () => void, onOpenNotifs: () => void }) {
   const { tasks, settings, stats } = useStore();
+  const t = i18n[settings.language] || i18n.en;
 
   const total = tasks.length;
   const doneC = tasks.filter(t => t.done).length;
@@ -13,7 +15,7 @@ export function Header({ onOpenSettings, onOpenNotifs }: { onOpenSettings: () =>
   const notifCount = tasks.filter(t => !t.done && t.due && t.due <= today).length;
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? t.goodMorning : hour < 18 ? t.goodAfternoon : t.goodEvening;
 
   return (
     <div className="p-6 pb-2">
@@ -48,10 +50,10 @@ export function Header({ onOpenSettings, onOpenNotifs }: { onOpenSettings: () =>
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-black" style={{ color: settings.accentColor }}>{doneC}</span>
-            <span className="text-sm font-medium text-gray-400">/ {total} tasks</span>
+            <span className="text-sm font-medium text-gray-400">/ {total} {t.tasks}</span>
           </div>
           <div className="text-right">
-            <div className="text-sm font-medium text-gray-400">🔥 {stats.streak} day streak</div>
+            <div className="text-sm font-medium text-gray-400">🔥 {stats.streak} {t.dayStreak}</div>
           </div>
         </div>
         <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: settings.darkMode ? "#2C2C2E" : "#E5E5EA" }}>

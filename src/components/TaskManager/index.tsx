@@ -38,7 +38,7 @@ interface NewTaskForm {
 }
 
 export default function TaskManager() {
-  const { tasks, categories, settings, addTask, toggleTaskDone, recordActivity, checkAchievements } = useStore();
+  const { tasks, categories, settings, addTask, toggleTaskDone, recordActivity, checkAchievements, updateSettings } = useStore();
   const t = i18n[settings.language] || i18n.en;
   
   const [view, setView] = useState<"list" | "kanban" | "calendar" | "stats" | "week">("list");
@@ -69,8 +69,53 @@ export default function TaskManager() {
   // Check achievements on task changes
   useEffect(() => { checkAchievements(); }, [tasks.length, checkAchievements]);
 
-  const trialStart = settings.trialStart;
-  const isExpired = trialStart && (new Date().getTime() - new Date(trialStart).getTime()) / 86400000 > 3;
+  // Subscription verification
+  const [subActive, setSubActive] = useState<boolean | null>(null);
+  useEffect(() => {
+    const checkSub = async () => {
+      const sessionStr = localStorage.getItem('tft_session');
+      if (!sessionStr) {
+        // No session: check if within 3-day trial
+        if (!settings.trialStart) {
+          updateSettings({ trialStart: new Date().toISOString() });
+          setSubActive(true);
+          return;
+        }
+        const elapsed = (Date.now() - new Date(settings.trialStart).getTime()) / 86400000;
+        setSubActive(elapsed <= 3);
+        return;
+      }
+
+      const session = JSON.parse(sessionStr);
+      // Re-verify every 24 hours
+      const verifiedAt = new Date(session.verifiedAt).getTime();
+      if (Date.now() - verifiedAt < 24 * 60 * 60 * 1000) {
+        setSubActive(true);
+        return;
+      }
+
+      // Re-verify with API
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: session.email }),
+        });
+        const data = await res.json();
+        if (data.active || data.trial) {
+          localStorage.setItem('tft_session', JSON.stringify({ ...session, verifiedAt: new Date().toISOString() }));
+          setSubActive(true);
+        } else {
+          localStorage.removeItem('tft_session');
+          setSubActive(false);
+        }
+      } catch {
+        // Offline — allow access if session exists
+        setSubActive(true);
+      }
+    };
+    checkSub();
+  }, [settings.trialStart, updateSettings]);
 
   const bgCol = settings.darkMode ? "#000000" : "#F2F2F7";
   const bgColAlt = settings.darkMode ? "#1C1C1E" : "#FFFFFF";
@@ -160,13 +205,24 @@ export default function TaskManager() {
 
   const viewLabels: Record<string, string> = { list: `☰ ${t.list}`, kanban: `⬜ ${t.kanban}`, calendar: `📅 ${t.calendar}`, stats: `📊 ${t.stats}`, week: `🗓 ${t.week}` };
 
-  if (isExpired && !settings.licenseKey) {
+  if (subActive === null) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#333', borderTopColor: settings.accentColor }} />
+          <p className="text-gray-500 text-sm">Verifying subscription...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (subActive === false) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center font-sans">
-        <h1 className="text-4xl font-extrabold mb-4">Trial Expired 😓</h1>
-        <p className="text-xl text-gray-400 mb-8 max-w-md">Your 3-day free trial has ended. Subscribe to Pro to continue.</p>
-        <button onClick={() => window.location.href="/checkout"} className="px-8 py-4 bg-[#30D158] text-black font-bold rounded-xl mb-4 text-lg">Subscribe for $1 / month</button>
-        <button onClick={() => window.location.href="/login"} className="px-8 py-4 bg-gray-900 text-white rounded-xl">I already have a License Key</button>
+        <h1 className="text-4xl font-extrabold mb-4">{t.trialExpired}</h1>
+        <p className="text-xl text-gray-400 mb-8 max-w-md">{t.trialExpiredMsg}</p>
+        <button onClick={() => window.location.href="/#pricing"} className="px-8 py-4 bg-[#30D158] text-black font-bold rounded-xl mb-4 text-lg">{t.subscribe.replace('$1', '$2.99')}</button>
+        <button onClick={() => window.location.href="/login"} className="px-8 py-4 bg-gray-900 text-white rounded-xl">{t.haveLicense}</button>
       </div>
     );
   }

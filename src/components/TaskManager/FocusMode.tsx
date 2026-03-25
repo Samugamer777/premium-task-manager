@@ -1,9 +1,11 @@
 "use client";
 import { useStore } from "@/store/useStore";
+import { i18n } from "@/lib/i18n";
 import { X, Check } from "lucide-react";
 
 export function FocusMode({ taskId, onClose }: { taskId: number, onClose: () => void }) {
   const { tasks, categories, settings, toggleTaskDone } = useStore();
+  const t = i18n[settings.language] || i18n.en;
   const task = tasks.find(t => t.id === taskId);
   
   if (!task) return null;
@@ -20,25 +22,25 @@ export function FocusMode({ taskId, onClose }: { taskId: number, onClose: () => 
   return (
     <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center p-6" style={{ backgroundColor: bgCol, color: textCol }}>
       <button onClick={onClose} className="absolute top-12 right-6 px-6 py-3 rounded-full font-bold text-sm" style={{ backgroundColor: bgColAlt }}>
-        Exit Focus
+        {t.exitFocus}
       </button>
 
       <div className="text-center max-w-sm w-full">
         <div className="text-6xl mb-8 animate-bounce">🎯</div>
-        <p className="text-sm uppercase tracking-widest font-bold mb-4" style={{ color: settings.accentColor }}>Focus on</p>
+        <p className="text-sm uppercase tracking-widest font-bold mb-4" style={{ color: settings.accentColor }}>{t.focusOn}</p>
         
         <h2 className="text-3xl font-black mb-6 leading-tight">{task.title}</h2>
         {task.description && <p className="text-lg opacity-70 mb-8 leading-relaxed max-w-sm mx-auto">{task.description}</p>}
 
         <div className="flex flex-wrap gap-2 justify-center mb-10">
-          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase" style={{ backgroundColor: bgColAlt }}>{task.priority} Priority</span>
+          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase" style={{ backgroundColor: bgColAlt }}>{task.priority}</span>
           {cat && <span className="px-3 py-1 rounded-full text-xs font-bold uppercase" style={{ backgroundColor: `${cat.color}22`, color: cat.color }}>{cat.name}</span>}
         </div>
 
         {subTotal > 0 && (
-          <div className="w-fulltext-left rounded-3xl p-6 mb-10 shadow-xl" style={{ backgroundColor: bgColAlt }}>
+          <div className="w-full text-left rounded-3xl p-6 mb-10 shadow-xl" style={{ backgroundColor: bgColAlt }}>
             <h4 className="font-bold mb-4 opacity-50 flex justify-between uppercase text-xs">
-              <span>Subtasks</span>
+              <span>{t.subtasks}</span>
               <span>{subDone} / {subTotal}</span>
             </h4>
             <div className="h-2 w-full rounded-full overflow-hidden mb-6" style={{ backgroundColor: borderCol }}>
@@ -61,7 +63,7 @@ export function FocusMode({ taskId, onClose }: { taskId: number, onClose: () => 
           className="w-full py-5 rounded-2xl text-black font-black text-xl hover:scale-105 active:scale-95 transition-transform" 
           style={{ backgroundColor: settings.accentColor, boxShadow: `0 20px 40px ${settings.accentColor}44` }}
         >
-          {task.done ? 'Undo Completion' : 'Mark as Done'}
+          {task.done ? t.undoCompletion : t.markAsDone}
         </button>
       </div>
     </div>

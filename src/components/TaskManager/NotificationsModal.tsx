@@ -1,10 +1,12 @@
 "use client";
 import { useMemo } from "react";
 import { useStore } from "@/store/useStore";
+import { i18n } from "@/lib/i18n";
 import { X, AlertTriangle, Clock, CalendarClock } from "lucide-react";
 
 export function NotificationsModal({ onClose, onOpenTask }: { onClose: () => void, onOpenTask: (id: number) => void }) {
   const { tasks, categories, settings } = useStore();
+  const t = i18n[settings.language] || i18n.en;
 
   const today = new Date().toISOString().split("T")[0];
   const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
@@ -12,21 +14,20 @@ export function NotificationsModal({ onClose, onOpenTask }: { onClose: () => voi
   const notifications = useMemo(() => {
     const notifs: { id: number; taskId: number; type: "overdue" | "today" | "tomorrow"; title: string; due: string; catColor: string }[] = [];
 
-    tasks.forEach(t => {
-      if (t.done || !t.due) return;
-      const cat = categories.find(c => c.id === t.categoryId);
+    tasks.forEach(task => {
+      if (task.done || !task.due) return;
+      const cat = categories.find(c => c.id === task.categoryId);
       const color = cat?.color || settings.accentColor;
 
-      if (t.due < today) {
-        notifs.push({ id: t.id, taskId: t.id, type: "overdue", title: t.title, due: t.due, catColor: color });
-      } else if (t.due === today) {
-        notifs.push({ id: t.id, taskId: t.id, type: "today", title: t.title, due: t.due, catColor: color });
-      } else if (t.due === tomorrow) {
-        notifs.push({ id: t.id, taskId: t.id, type: "tomorrow", title: t.title, due: t.due, catColor: color });
+      if (task.due < today) {
+        notifs.push({ id: task.id, taskId: task.id, type: "overdue", title: task.title, due: task.due, catColor: color });
+      } else if (task.due === today) {
+        notifs.push({ id: task.id, taskId: task.id, type: "today", title: task.title, due: task.due, catColor: color });
+      } else if (task.due === tomorrow) {
+        notifs.push({ id: task.id, taskId: task.id, type: "tomorrow", title: task.title, due: task.due, catColor: color });
       }
     });
 
-    // Sort: overdue first, then today, then tomorrow
     return notifs.sort((a, b) => {
       const order = { overdue: 0, today: 1, tomorrow: 2 };
       return order[a.type] - order[b.type];
@@ -39,9 +40,9 @@ export function NotificationsModal({ onClose, onOpenTask }: { onClose: () => voi
   const textCol = settings.darkMode ? "#FFFFFF" : "#000000";
 
   const typeConfig = {
-    overdue:  { icon: <AlertTriangle size={16} />, label: "Overdue", color: "#FF453A", bg: "#FF453A22" },
-    today:    { icon: <Clock size={16} />,         label: "Due Today", color: "#FF9F0A", bg: "#FF9F0A22" },
-    tomorrow: { icon: <CalendarClock size={16} />, label: "Due Tomorrow", color: "#0A84FF", bg: "#0A84FF22" },
+    overdue:  { icon: <AlertTriangle size={16} />, label: t.overdue, color: "#FF453A", bg: "#FF453A22" },
+    today:    { icon: <Clock size={16} />,         label: t.dueToday, color: "#FF9F0A", bg: "#FF9F0A22" },
+    tomorrow: { icon: <CalendarClock size={16} />, label: t.dueTomorrow, color: "#0A84FF", bg: "#0A84FF22" },
   };
 
   return (
@@ -50,15 +51,15 @@ export function NotificationsModal({ onClose, onOpenTask }: { onClose: () => voi
         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 rounded-full" style={{ backgroundColor: borderCol }} />
 
         <div className="flex justify-between items-center mb-6 mt-4">
-          <h2 className="text-xl font-bold">🔔 Notifications</h2>
+          <h2 className="text-xl font-bold">🔔 {t.notifications}</h2>
           <button onClick={onClose} className="p-2 rounded-full" style={{ background: bgColAlt }}><X size={20} color={textCol} /></button>
         </div>
 
         {notifications.length === 0 ? (
           <div className="py-16 text-center">
             <div className="text-5xl mb-4">🎉</div>
-            <p className="font-bold text-lg mb-2">You&apos;re all caught up!</p>
-            <p className="text-sm" style={{ color: "gray" }}>No overdue or upcoming deadlines.</p>
+            <p className="font-bold text-lg mb-2">{t.allCaughtUp}</p>
+            <p className="text-sm" style={{ color: "gray" }}>{t.noDeadlines}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -84,10 +85,6 @@ export function NotificationsModal({ onClose, onOpenTask }: { onClose: () => voi
             })}
           </div>
         )}
-
-        <p className="text-[11px] text-center mt-6 opacity-40">
-          Tasks due today, tomorrow, or overdue appear here automatically.
-        </p>
       </div>
     </div>
   );

@@ -124,8 +124,8 @@ export const i18n = {
     // Trial
     trialExpired: "Trial Expired 😓",
     trialExpiredMsg: "Your 3-day free trial has ended. Subscribe to Pro to continue.",
-    subscribe: "Subscribe for $1 / month",
-    haveLicense: "I already have a License Key",
+    subscribe: "Subscribe for $2.99 / month",
+    haveLicense: "I already have an account",
   },
   es: {
     goodMorning: "Buenos días",
@@ -235,8 +235,8 @@ export const i18n = {
 
     trialExpired: "Prueba Expirada 😓",
     trialExpiredMsg: "Tu prueba gratis de 3 días ha terminado. Suscríbete a Pro para continuar.",
-    subscribe: "Suscribirse por $1 / mes",
-    haveLicense: "Ya tengo una Licencia",
+    subscribe: "Suscribirse por $2.99 / mes",
+    haveLicense: "Ya tengo una cuenta",
   }
 } as const;
 

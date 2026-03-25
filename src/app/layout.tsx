@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FocusTask — Premium Task Manager",
-  description: "Manage your life without the chaos. Kanban, Pomodoro, Focus Mode & more for $1/month.",
+  title: "TheFocusTask — Premium Task Manager",
+  description: "Manage your life without the chaos. Kanban, Pomodoro, Focus Mode & more.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
